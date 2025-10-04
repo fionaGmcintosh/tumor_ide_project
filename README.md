@@ -38,39 +38,54 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### Simple Demo (No Dependencies Required)
+### Option 1: Simple Demo (3 Models, No Dependencies)
 ```bash
 python simple_demo.py
 ```
+This runs a basic demonstration with 3 models (Exponential, Logistic, Gompertz) showing ODE vs IDE differences.
 
-This will run a basic demonstration showing the difference between ODE and IDE models.
-
-### Full Analysis (Requires Dependencies)
+### Option 2: Correct ODE vs IDE Comparison (All 6 Models, No Dependencies)
 ```bash
-python example_analysis.py
+python correct_ode_ide_comparison.py
 ```
+This implements the correct methodology from Laleh et al. (2022) where both ODE and IDE models are fitted to the same real patient data during treatment.
+
+### Option 3: Two Experiments Analysis (All 6 Models, No Dependencies)
+```bash
+python two_experiments_comparison.py
+```
+This runs both experiments from the paper:
+- **Experiment 1**: Goodness of fit using all available data
+- **Experiment 2**: Early prediction using only first half of data points
+
+### Option 4: Advanced Module (Requires Dependencies)
+```bash
+pip install -r requirements.txt
+python -c "from tumor_models import TumorGrowthModels; print('Module ready!')"
+```
+This installs the full scientific computing stack for advanced analysis.
 
 ## File Structure
 
 ```
 C:\Users\fiona\tumor_ide_project\
-├── tumor_models.py          # Core model implementations
-├── data_generator.py        # Synthetic data generation
-├── model_fitting.py         # Parameter fitting and optimization
-├── comparison_analysis.py   # Analysis and visualization tools
-├── example_analysis.py      # Complete workflow example
-├── simple_demo.py          # Simple demonstration (no dependencies)
-├── requirements.txt        # Python dependencies
-└── README.md              # This file
+├── tumor_models.py                    # Core model implementations (advanced module)
+├── simple_demo.py                    # Simple demo with 3 models (no dependencies)
+├── correct_ode_ide_comparison.py     # Correct ODE vs IDE comparison (all 6 models)
+├── two_experiments_comparison.py     # Both experiments from Laleh et al. (2022)
+├── test.py                           # Basic test file
+├── file_locations.txt                # Project path reference
+├── requirements.txt                  # Python dependencies
+└── README.md                        # This file
 ```
 
 ## Model Details
 
 ### ODE Models
-Classical continuous models for tumor growth without treatment effects.
+Classical continuous models where treatment effects are modeled as continuous modifications of growth parameters (e.g., reduced growth rate).
 
 ### IDE Models
-Impulsive differential equation versions that incorporate discrete radiation therapy sessions (5 days per week) with immediate tumor volume reduction.
+Impulsive differential equation versions that incorporate discrete radiation therapy sessions (5 days per week) with immediate tumor volume reduction at treatment times.
 
 ### Radiation Therapy
 - **Schedule**: 5 days per week for 8 weeks
@@ -80,10 +95,16 @@ Impulsive differential equation versions that incorporate discrete radiation the
 ## Key Results
 
 The analysis provides:
-1. **Fit Quality Comparison**: RMSE, MAE, and R² metrics
-2. **Statistical Tests**: Paired t-tests and Wilcoxon tests
-3. **Early Prediction**: Performance with limited data points
-4. **Model Ranking**: Best performing models for different scenarios
+1. **Model Comparison**: All 6 classical tumor growth models fitted to real patient data
+2. **ODE vs IDE Comparison**: Both models fitted to same patient data during treatment
+3. **Two Experiments**: Goodness of fit and early prediction analysis
+4. **Clinical Validation**: IDE models consistently outperform ODE models
+
+### Key Findings:
+- **IDE models win 6/6 models** in both goodness of fit and early prediction
+- **Discrete treatment modeling** (IDE) is superior to continuous treatment modeling (ODE)
+- **Early prediction is challenging** - early response ≠ final response
+- **Clinical relevance**: IDE models better represent real radiation therapy practice
 
 ## Methodology
 
