@@ -8,10 +8,7 @@ Impulsive Differential Equation (IDE) counterparts for radiation therapy.
 
 import numpy as np
 from scipy.integrate import solve_ivp
-from scipy.optimize import minimize
-import matplotlib.pyplot as plt
-from typing import List, Tuple, Dict, Callable
-import warnings
+from typing import List, Tuple, Dict
 
 class TumorGrowthModels:
     """

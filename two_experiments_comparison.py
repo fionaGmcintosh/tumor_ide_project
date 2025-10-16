@@ -123,7 +123,7 @@ def calculate_rmse(predicted_times, predicted_volumes, real_times, real_volumes)
     """Calculate Root Mean Square Error between predicted and real data"""
     errors = []
     for i, real_t in enumerate(real_times):
-        # Find closest predicted time
+        # Find the closest predicted time
         closest_idx = min(range(len(predicted_times)), 
                         key=lambda i: abs(predicted_times[i] - real_t))
         error = (predicted_volumes[closest_idx] - real_volumes[i]) ** 2

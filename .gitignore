@@ -1,0 +1,16 @@
+# Pycharm IDE settings
+/.idea/
+
+# LaTeX output files
+/out/
+
+# Python virtual environment
+/venv/
+/.venv/
+
+# Cached files
+__pycache__/
+
+# Package and docs build results
+dist/
+build/
