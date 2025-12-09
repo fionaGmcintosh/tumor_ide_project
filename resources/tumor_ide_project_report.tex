@@ -62,6 +62,21 @@ This data did not include the exact dates/timeline for the treatment. This is a 
 
 The data was fully deidentified with an encryption key to reidentify details as needed. 
 
+\begin{table}[h] % 'h' means place table approximately here
+\centering
+\begin{tabular}{|c|c|c|c|} % 3 columns, all centered, with vertical lines
+\hline
+\textbf{ID} & \textbf{Treatment Group} & \textbf{Days Since Baseline} & \textbf{Longest Diameter} \\ \hline
+1 & Alice & 85 & etc\\ \hline
+2 & Bob & 90 & etc\\ \hline
+3 & Charlie & 78 & etc\\ \hline
+\end{tabular}
+\caption{Example of the deidentified data}
+\label{tab:simple}
+\end{table}
+
+Standard way to approximate volume is to say $V=\frac{LD^3}{2}$, where $LD$ is the longest diameter measured.
+
 \subsection{Models Implemented}
 
 Six classical tumor growth models were implemented:
