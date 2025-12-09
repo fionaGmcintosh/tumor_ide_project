@@ -234,24 +234,12 @@ This analysis validates the methodology from Laleh et al. (2022) and demonstrate
     \item Discrete treatment modeling better represents clinical radiation therapy
     \item Classical tumor growth models can be effectively validated against patient data
     \item Early prediction capabilities vary significantly between models
+    \item Amongst the ODEs, ### model was the best at prediction and ### was the best fittable model
+    \item Amongst the IDEs, ### model was the best at prediction and ### was the best fittable model
+    \item Overall ### was best at prediction and ### was best able to be fit
 \end{enumerate}
 
 The results support the continued development and clinical application of IDE-based tumor growth models for radiation therapy planning and outcome prediction.
-
-\section{Usage Instructions}
-
-To reproduce these results:
-
-\begin{lstlisting}[language=bash]
-# Run complete two-experiment analysis
-python two_experiments_comparison.py
-
-# Run single experiment analysis
-python correct_ode_ide_comparison.py
-
-# Run simple 3-model demo
-python simple_demo.py
-\end{lstlisting}
 
 
 
@@ -265,21 +253,5 @@ Laleh, N. G., Loeffler, C. M. L., Grajek, J., Staňková, K., Pearson, A. T., Mu
 
 \section{Code Availability}
 
-All code and analysis scripts are available in the project repository:
-\begin{itemize}
-    \item \texttt{tumor\_models.py}: Core model implementations
-    \item \texttt{two\_experiments\_comparison.py}: Complete analysis
-    \item \texttt{correct\_ode\_ide\_comparison.py}: Single experiment
-    \item \texttt{simple\_demo.py}: Basic demonstration
-\end{itemize}
-
-The project consists of several Python modules:
-
-\begin{itemize}
-    \item \texttt{tumor\_models.py}: Core model implementations using scipy
-    \item \texttt{simple\_demo.py}: Basic demonstration with 3 models
-    \item \texttt{correct\_ode\_ide\_comparison.py}: Single experiment analysis
-    \item \texttt{two\_experiments\_comparison.py}: Complete two-experiment analysis
-\end{itemize}
-
+All code and analysis scripts are available in the GitHub repository (which we'll need to link to this).
 \end{document}
