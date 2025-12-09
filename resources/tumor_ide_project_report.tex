@@ -10,7 +10,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
-\title{Tumor Growth Model Comparison: ODE vs IDE Analysis}
+\title{Common Tumor Growth Models Comparison: ODE vs IDE Analysis}
 \author{Tumor IDE Project}
 \date{\today}
 
@@ -24,7 +24,11 @@ This project implements a comprehensive comparison between classical Ordinary Di
 
 \section{Introduction}
 
-Mathematical modeling of tumor growth has become crucial for understanding cancer progression and optimizing treatment strategies. Classical models have been widely used in the field, but their validation against real patient data has been limited. This project addresses this gap by implementing and comparing six classical tumor growth models in both ODE and IDE formulations.
+Mathematical modeling of tumor growth has become crucial for understanding cancer progression and optimizing treatment strategies. Classical models have been widely used in the field, are easy to implement, and are often used for predicting tumor growth and response to treatments.\n
+
+As mentioned in Laleh et al. (2022), there are two ways in which to implement the effects of therapies when using mathematical models. One is an implicit way, where the effects are solely seen through their alterations of the parameters in the equations. This was the method chosen by Laleh et al. The other method, however, explicitly takes into account the actions of the therapy. In this case, at the moment that treatment is given, the acute change in volume (i.e. the acute death of certain parts of the tumor when treatment is administered) is made as an impulse, then the model returns to its continuous state until the next impulse of treatment.\n
+
+This project addresses this gap by implementing and comparing six classical tumor growth models in both ODE and IDE formulations.
 
 \subsection{Research Question}
 
@@ -32,34 +36,38 @@ Does modeling radiation therapy as discrete impulses (IDE) provide better predic
 
 \section{Methodology}
 
+\subsection{Data}
+Data was gathere from ***put wherever we got the data from [NYU etc etc from year - year*** RECIST data. There were ## studies from which the data was gathered. These included trials of ***drugs/types*** for ***cancer types***.\n
+
+This data did not include the exact dates/timeline for the treatment. This is a limitation that is discussed later. However, RECIST measurement data is most often collected either the same day or the day before treatment is given for a cycle. It can sometimes be as far as 7 days after the measurement is taken. Thus, to standardize, we chose to make the assumption that treatment was given one day after the measurement was taken. So if the time point is day $X$, the treatment is assumed to be day $X+1$.
+
 \subsection{Models Implemented}
 
 Six classical tumor growth models were implemented:
 
 \begin{enumerate}
-    \item \textbf{Exponential}: $\frac{dy}{dt} = ry$
-    \item \textbf{Logistic}: $\frac{dy}{dt} = ry(1 - \frac{y}{K})$
-    \item \textbf{Classic Bertalanffy}: $\frac{dy}{dt} = ay^{2/3} - by$
-    \item \textbf{General Bertalanffy}: $\frac{dy}{dt} = ay^m - by^n$
-    \item \textbf{Classic Gompertz}: $\frac{dy}{dt} = ry\ln(\frac{K}{y})$
-    \item \textbf{General Gompertz}: $\frac{dy}{dt} = ry\ln(\frac{K}{y})^{1/m}$
+    \item \textbf{Exponential}: $\frac{dV}{dt} = rV$
+    \item \textbf{Logistic}: $\frac{dV}{dt} = rV(1 - \frac{y}{K})$
+    \item \textbf{Classic Bertalanffy}: $\frac{dV}{dt} = aV^{2/3} - bV$
+    \item \textbf{General Bertalanffy}: $\frac{dV}{dt} = aV^m - bV^n$
+    \item \textbf{Classic Gompertz}: $\frac{dV}{dt} = ry\ln(\frac{K}{V})$
+    \item \textbf{General Gompertz}: $\frac{dV}{dt} = ry\ln(\frac{K}{V})^{1/m}$
 \end{enumerate}
 
 \subsection{ODE vs IDE Formulations}
 
+The same six models will be used for both the ODE and IDE forms. The specifics of how this will look are seen below.
+
 \subsubsection{ODE Models}
-ODE models incorporate treatment as a continuous effect on growth parameters:
-\begin{align}
-\text{Exponential ODE: } \frac{dy}{dt} &= (r - \text{treatment\_effect}) \cdot y \\
-\text{Logistic ODE: } \frac{dy}{dt} &= (r - \text{treatment\_effect}) \cdot y(1 - \frac{y}{K})
-\end{align}
+ODE models incorporate treatment as a continuous effect on growth parameters. Thus, the six methods seen above are incorporated precisely as seen, with the differences in the estimation of parameters such as $r$, $a$, $b$, etc. being the exclusive way that the treatment affects the growth prediction.
 
 \subsubsection{IDE Models}
 IDE models incorporate treatment as discrete impulses at treatment times:
 \begin{align}
-\frac{dy}{dt} &= f(t, y, \text{params}) \quad \text{(between treatments)} \\
-y(t^+) &= y(t^-) \cdot (1 - \text{impulse\_strength}) \quad \text{(at treatment times)}
+\frac{dV}{dt} &= f(t, V, \text{params}) \quad \text{[between treatments]} \\
+V(t^+) &= V(t^-) \cdot (1 - \delta) \quad \text{[at treatment times]}
 \end{align}
+Where $\delta$ is a parameter correlating to the death of the tumor cells caused acutely by the treatment at the time of treatment.
 
 \subsection{Two Experiments}
 
