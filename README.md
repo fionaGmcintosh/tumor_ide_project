@@ -1,4 +1,5 @@
 # Tumor Growth Model Comparison: ODE vs IDE
+*** A lot of the code is going to be changed/replaced in the near term (AI stuff --> human code) ***
 
 This project implements a comprehensive comparison between classical Ordinary Differential Equation (ODE) models and Impulsive Differential Equation (IDE) models for tumor growth with radiation therapy, based on the methodology from Laleh et al. (2022).
 
@@ -12,9 +13,9 @@ The project compares six classical tumor growth models:
 - Classic Gompertz
 - General Gompertz
 
-Each model is implemented in both ODE (continuous) and IDE (with discrete radiation impulses) versions to assess whether the discrete nature of radiation therapy improves model accuracy and predictive power.
+Each model is implemented in both ODE (continuous) and IDE (with discrete treatment impulses) versions to assess whether treating the therapy as having a discrete impulsive effect on the tumor volume improves model accuracy and predictive power.
 
-## Key Features
+## Key Features (these are all going to change in the near future as we alter the code)
 
 - **Synthetic Data Generation**: Creates realistic tumor volume data with treatment schedules
 - **Model Implementation**: Complete implementation of all six classical models
@@ -85,12 +86,8 @@ C:\Users\fiona\tumor_ide_project\
 Classical continuous models where treatment effects are modeled as continuous modifications of growth parameters (e.g., reduced growth rate).
 
 ### IDE Models
-Impulsive differential equation versions that incorporate discrete radiation therapy sessions (5 days per week) with immediate tumor volume reduction at treatment times.
+Impulsive differential equation versions that incorporate discrete therapy sessions (assumed to be one day following the time of the RECIST scan) with immediate tumor volume reduction at treatment times.
 
-### Radiation Therapy
-- **Schedule**: 5 days per week for 8 weeks
-- **Effect**: Each session reduces tumor volume by a specified fraction
-- **Timing**: Discrete impulses at treatment times
 
 ## Key Results
 
@@ -98,27 +95,13 @@ The analysis provides:
 1. **Model Comparison**: All 6 classical tumor growth models fitted to real patient data
 2. **ODE vs IDE Comparison**: Both models fitted to same patient data during treatment
 3. **Two Experiments**: Goodness of fit and early prediction analysis
-4. **Clinical Validation**: IDE models consistently outperform ODE models
+4. **Clinical Validation**: Do IDE models outperform ODE models??
 
 ### Key Findings:
-- **IDE models win 6/6 models** in both goodness of fit and early prediction
-- **Discrete treatment modeling** (IDE) is superior to continuous treatment modeling (ODE)
-- **Early prediction is challenging** - early response ≠ final response
-- **Clinical relevance**: IDE models better represent real radiation therapy practice
+- unknown at present
 
 ## Methodology
 
 Based on the methodology from:
 > Laleh, N. G., et al. (2022). "Classical mathematical models for prediction of response to chemotherapy and immunotherapy." PLOS Computational Biology.
 
-## Future Work
-
-- Integration with real clinical data
-- Additional treatment modalities (chemotherapy, immunotherapy)
-- Machine learning integration
-- Real-time prediction capabilities
-
-## Citation
-
-If you use this code in your research, please cite the original paper:
-> Laleh, N. G., Loeffler, C. M. L., Grajek, J., Staňková, K., Pearson, A. T., Muti, H. S., ... & Kather, J. N. (2022). Classical mathematical models for prediction of response to chemotherapy and immunotherapy. PLOS Computational Biology, 18(2), e1009822.
