@@ -15,14 +15,14 @@ The project compares six classical tumor growth models:
 
 Each model is implemented in both ODE (continuous) and IDE (with discrete treatment impulses) versions to assess whether treating the therapy as having a discrete impulsive effect on the tumor volume improves model accuracy and predictive power.
 
-## Key Features (these are all going to change in the near future as we alter the code)
+## Key Features (these are all going to change in the near future as we alter the code; also, the details can be seen in the Plan doc and the status board!)
 
 - **Synthetic Data Generation**: Creates realistic tumor volume data with treatment schedules
 - **Model Implementation**: Complete implementation of all six classical models
-- **IDE Conversion**: Automatic conversion of ODE models to IDE versions with radiation impulses
+- **IDE Conversion**: Conversion of ODE models to IDE versions with radiation impulses
 - **Parameter Fitting**: Robust parameter estimation using differential evolution
 - **Early Prediction**: Tests model performance with limited early data
-- **Statistical Analysis**: Comprehensive comparison with statistical tests
+- **Statistical Analysis**: MAE, MSE, RMSE for fit (sort out more details later, collect all for now)
 - **Visualization**: Publication-ready figures and plots
 
 ## Installation
