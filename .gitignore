@@ -3,6 +3,8 @@
 
 # LaTeX output files
 /out/
+/latex_report/*
+!/latex_report/*.tex
 
 # Python virtual environment
 /venv/
