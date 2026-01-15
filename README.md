@@ -2,6 +2,24 @@
 
 This project implements a comprehensive comparison between classical Ordinary Differential Equation (ODE) models and Impulsive Differential Equation (IDE) models for tumor growth with radiation therapy, based on the methodology from Laleh et al. (2022).
 
+## IMPORTANT NOTE
+
+As we now have the real data we are using, keep these things in mind:
+- Treatment is given on days 1, 22, 43, 64, etc. (day 1, then again at the beginning of every 21 day cycle)
+    * Thus, this is when impulses must be represented!
+- There are two sources of data
+    * One is for advanced/metastatic NSCLC after failed platinum based chemo
+    * One is for advanced/metastatic squamous NSCLC after failed platinum based chemo
+- Both of them: 
+    * Are on the 21 day cycles with treatment on day 1 of each cycle (i.e. 1,, 22, 43, etc.) as stated above
+    * Treat with 75mg Docetaxel (a Taxane chemotherapeutic agent) per square meter, IV
+    * Treatment continues until the first one of these events occurs:
+        + Disease Progression
+        + Death
+        + Unacceptable toxicity
+        + Withdrawal of consent
+        + Study termination
+
 
 ## Helpful Links
 
