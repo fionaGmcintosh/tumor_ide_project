@@ -6,19 +6,29 @@ This project implements a comprehensive comparison between classical Ordinary Di
 
 As we now have the real data we are using, keep these things in mind:
 - Treatment is given on days 1, 22, 43, 64, etc. (day 1, then again at the beginning of every 21 day cycle)
-    * Thus, this is when impulses must be represented!
+    - Thus, this is when impulses must be represented!
 - There are two sources of data
-    * One is for advanced/metastatic NSCLC after failed platinum based chemo
-    * One is for advanced/metastatic squamous NSCLC after failed platinum based chemo
+    - One is for advanced/metastatic NSCLC after failed platinum based chemo
+    - One is for advanced/metastatic squamous NSCLC after failed platinum based chemo
 - Both of them: 
-    * Are on the 21 day cycles with treatment on day 1 of each cycle (i.e. 1,, 22, 43, etc.) as stated above
-    * Treat with 75mg Docetaxel (a Taxane chemotherapeutic agent) per square meter, IV
-    * Treatment continues until the first one of these events occurs:
-        + Disease Progression
-        + Death
-        + Unacceptable toxicity
-        + Withdrawal of consent
-        + Study termination
+    - Are on the 21 day cycles with treatment on day 1 of each cycle (i.e. 1,, 22, 43, etc.) as stated above
+    - Treat with 75mg Docetaxel (a Taxane chemotherapeutic agent) per square meter, IV
+    - Treatment continues until the first one of these events occurs:
+        - Disease Progression
+        - Death
+        - Unacceptable toxicity
+        - Withdrawal of consent
+        - Study termination 
+- POPLAR Trial:
+  - https://clinicaltrials.gov/study/NCT01903993#study-plan
+  - "Advanced or metastatic non-small cell lung cancer after platinum failure"
+  - "Participants received docetaxel 75 milligram per meter square (mg/m^2) administered intravenously on Day 1 of each 21 day cycle until disease progression or unacceptable toxicity or death."
+  - GO28753
+- OAK Trial:
+  - https://clinicaltrials.gov/study/NCT02008227#study-plan
+  - "Locally advanced or metastatic non-small cell lung cancer (NSCLC) after failure with platinum-containing chemotherapy"
+  - "Docetaxel 75 milligrams per meter square (mg/m^2) was administered via IV infusion on Day 1 of each 21-day cycle until disease progression, death, unacceptable toxicity, withdrawal of consent, or study termination by sponsor, whichever occurs first."
+  - GO28915
 
 
 ## Helpful Links
