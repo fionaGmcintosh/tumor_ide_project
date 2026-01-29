@@ -39,6 +39,8 @@ def classic_gompertz(_t, y, gamma, delta):
     :param delta: Derived from net growth rate and carrying capacity
     :return: Value of the derivative of the model at the specified time
     """
+    # Clamp model value to prevent log domain error
+    y = np.maximum(y, 1e-12)
     return y * (delta - gamma * np.log(y))
 
 
@@ -52,6 +54,8 @@ def general_gompertz(_t, y, gamma, delta, lamda):
     :param lamda: Additional tuning parameter
     :return: Value of the derivative of the model at the specified time
     """
+    # Clamp model value to prevent log domain error
+    y = np.maximum(y, 1e-12)
     return (y ** lamda) * (delta - (gamma * np.log(y)))
 
 
