@@ -6,10 +6,10 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 
-def exponential(t, y, alpha, beta):
+def exponential(_t, y, alpha, beta):
     """Function modeling the ODE of the exponential growth model.
 
-    :param t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
     :param y: Scalar value of the model at the specified time
     :param alpha: Growth rate parameter
     :param beta: Death rate parameter
@@ -18,10 +18,10 @@ def exponential(t, y, alpha, beta):
     return (alpha - beta) * y
 
 
-def logistic(t, y, gamma, kappa):
+def logistic(_t, y, gamma, kappa):
     """Function modeling the ODE of the logistic growth model.
 
-    :param t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
     :param y: Scalar value of the model at the specified time
     :param gamma: Net growth rate parameter
     :param kappa: Carrying capacity parameter
@@ -29,10 +29,10 @@ def logistic(t, y, gamma, kappa):
     """
     return gamma * y * (1 - (y / kappa))
 
-def classic_gompertz(t, y, gamma, delta):
+def classic_gompertz(_t, y, gamma, delta):
     """Function modeling the ODE of the Classic Gompertz growth model.
 
-    :param t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
     :param y: Scalar value of the model at the specified time
     :param gamma: Net growth rate parameter
     :param delta: Derived from net growth rate and carrying capacity
@@ -40,10 +40,10 @@ def classic_gompertz(t, y, gamma, delta):
     """
     return y * (delta - gamma * np.log(y))
 
-def general_gompertz(t, y, gamma, delta, lamda):
+def general_gompertz(_t, y, gamma, delta, lamda):
     """Function modeling the ODE of the Classic Gompertz growth model.
 
-    :param t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
     :param y: Scalar value of the model at the specified time
     :param gamma: Net growth rate parameter
     :param delta: Derived from net growth rate and carrying capacity
@@ -52,10 +52,10 @@ def general_gompertz(t, y, gamma, delta, lamda):
     """
     return (y ** lamda) * (delta - (gamma * np.log(y)))
 
-def classic_bertalanffy(t, y, alpha, beta):
+def classic_bertalanffy(_t, y, alpha, beta):
     """Function modeling the ODE of the Classic Bertalanffy growth model.
 
-    :param t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
     :param y: Scalar value of the model at the specified time
     :param alpha: Growth rate parameter
     :param beta: Death rate parameter
@@ -63,10 +63,10 @@ def classic_bertalanffy(t, y, alpha, beta):
     """
     return (alpha * (y ** 2 / 3)) - (beta * y)
 
-def general_bertalanffy(t, y, alpha, beta, lamda):
+def general_bertalanffy(_t, y, alpha, beta, lamda):
     """Function modeling the ODE of the Classic Bertalanffy growth model.
 
-    :param t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
     :param y: Scalar value of the model at the specified time
     :param alpha: Growth rate parameter
     :param beta: Death rate parameter
@@ -88,8 +88,8 @@ class GrowthModel(ABC):
     def __init__(self, base_ode):
         """Constructor method.
         """
-        self.diff_eq = base_ode
-        self.num_params = len(list(inspect.signature(self.diff_eq).parameters.values())[2:])
+        self.base_ode = base_ode
+        self.num_params = len(list(inspect.signature(self.base_ode).parameters.values())[2:]) + 1
 
     @abstractmethod
     def solution(self, t_array, y0, *args):
@@ -124,6 +124,7 @@ class GrowthModel(ABC):
         y_array_pred = self.solution(t_array, *params)
         return sqrt(np.mean(np.sum((y_array - y_array_pred) ** 2.0)))
 
+    # TODO: Not entirely sure how this quantity should be computed given normalization techniques
     def mae(self, params, t_array, y_array):
         """Computes the mean absolute error (MAE) for the model given DE parameters and a set of actual data
 
@@ -152,7 +153,7 @@ class GrowthModelODE(GrowthModel):
         :param args: Additional parameters of the base DE model, must match what is expected by base DE model
         :return: Array of model values at the specified times
         """
-        sol = solve_ivp(self.diff_eq, [t_array[0], t_array[-1]], [y0], t_eval=t_array, args=args)
+        sol = solve_ivp(self.base_ode, [t_array[0], t_array[-1]], [y0], t_eval=t_array, args=args)
         return np.asarray(sol.y)[0]
 
 
@@ -178,11 +179,11 @@ class GrowthModelIDE(GrowthModel):
         :param n_impulses: Number of impulses that have been applied thus far during numerical integration of the IDE
         :return: Event function to detect the next impulse
         """
-        def impulse_event(t, y):
+        def impulse_event(t, _y):
             """Function given to scipy.integrate.solve_ivp to interrupt numerical integration when an impulse must occur
 
             :param t: Current time during numerical integration
-            :param y: Current model value during numerical integration (unused but needed for interfacing)
+            :param _y: Current model value during numerical integration (unused but needed for interfacing)
             :return:
             """
             return t - (n_impulses * self._treatment_period + 1)
@@ -218,7 +219,7 @@ class GrowthModelIDE(GrowthModel):
 
         while flag:
             # Perform numerical integration between impulses
-            sol = solve_ivp(self.diff_eq, [t0_n, t_array[-1]], [y0_n],
+            sol = solve_ivp(self.base_ode, [t0_n, t_array[-1]], [y0_n],
                             t_eval=t_array_n, events=self._impulse_event_factory(n), args=args[1:])
 
             # Determine start time of next numerical integration interval

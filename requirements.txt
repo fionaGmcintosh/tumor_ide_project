@@ -1,5 +1,6 @@
-numpy
-pandas
-scipy
-scipy-stubs
-matplotlib
+numpy~=2.4.1
+pandas~=3.0.0
+pandas-stubs~=2.3.3.260113
+scipy~=1.17.0
+scipy-stubs~=1.17.0.2
+matplotlib~=3.10.8

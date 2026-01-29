@@ -35,7 +35,7 @@ As we now have the real data we are using, keep these things in mind:
 
 Information about RECIST data: https://radiologyassistant.nl/more/recist-1-1/recist-1-1-1  
 Laleh Paper: https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009822  
-Laleh Paper Code: https://github.com/KatherLab/ImmunotherapyModels (Latest commit is broken)
+Laleh Paper Code: https://github.com/KatherLab/ImmunotherapyModels (Latest commit is broken)  
 Laleh Paper Code Forked Repo: https://github.com/mstracci/ImmunotherapyModels.git
 
 ## Overview
@@ -47,6 +47,7 @@ The project compares six classical tumor growth models:
 - General Bertalanffy
 - Classic Gompertz
 - General Gompertz
+
 Each model is implemented in both ODE (continuous) and IDE (with discrete treatment impulses) versions to assess whether treating the therapy as having a discrete impulsive effect on the tumor volume improves model accuracy and predictive power.
 
 
