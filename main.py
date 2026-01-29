@@ -1,12 +1,13 @@
 import os
+import shutil
 
 import numpy as np
 import pandas as pd
 from scipy.optimize import differential_evolution, curve_fit
 import matplotlib.pyplot as plt
 
-from growth_models import (GrowthModelODE, GrowthModelIDE, exponential, logistic, classic_gompertz, general_gompertz,
-                           classic_bertalanffy, general_bertalanffy)
+from growth_models import GrowthModelODE, GrowthModelIDE, exponential, logistic, classic_gompertz, general_gompertz
+                           # classic_bertalanffy, general_bertalanffy
 
 
 def get_model(base_ode, model_type):
@@ -121,7 +122,7 @@ def perform_data_analysis(data_path, model_properties, num_plots=5, save_dir=Non
         vol_array = 0.5 * (patient_data_subset['longest_diameter_mm'].to_numpy()) ** 3
         # TODO: Should we be normalizing per patient baseline? In study use full dataset max, here we use patient max
         # vol_array /= vol_array[0]
-        vol_array /= vol_array.max()
+        vol_array = np.array(vol_array) / vol_array.max()
 
         for model_name, model_dict in model_properties.items():
             # Iterate through and construct each type of model and check number of data points
@@ -173,20 +174,20 @@ if __name__ == "__main__":
             {'base_ode': general_gompertz, 'model_type': 'ode'},
         'general_gompertz_impulsive':
             {'base_ode': general_gompertz, 'model_type': 'ide'},
-        'classic_bertalanffy':
-            {'base_ode': classic_bertalanffy, 'model_type': 'ode'},
-        'classic_bertalanffy_impulsive':
-            {'base_ode': classic_bertalanffy, 'model_type': 'ide'},
-        'general_bertalanffy':
-            {'base_ode': general_bertalanffy, 'model_type': 'ode'},
-        'general_bertalanffy_impulsive':
-            {'base_ode': general_bertalanffy, 'model_type': 'ide'}
+        # 'classic_bertalanffy':
+        #     {'base_ode': classic_bertalanffy, 'model_type': 'ode'},
+        # 'classic_bertalanffy_impulsive':
+        #     {'base_ode': classic_bertalanffy, 'model_type': 'ide'},
+        # 'general_bertalanffy':
+        #     {'base_ode': general_bertalanffy, 'model_type': 'ode'},
+        # 'general_bertalanffy_impulsive':
+        #     {'base_ode': general_bertalanffy, 'model_type': 'ide'}
     }
     NUM_PLOT = 5
     SAVE_DIR = 'results'
 
     if os.path.exists(SAVE_DIR):
-        os.rmdir(SAVE_DIR)
+        shutil.rmtree(SAVE_DIR)
     os.mkdir(SAVE_DIR)
 
     RESULTS = perform_data_analysis(DATA_PATH, MODEL_PROPERTIES, NUM_PLOT, SAVE_DIR)

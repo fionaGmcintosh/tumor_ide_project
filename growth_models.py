@@ -27,6 +27,8 @@ def logistic(_t, y, gamma, kappa):
     :param kappa: Carrying capacity parameter
     :return: Value of the derivative of the model at the specified time
     """
+    # Clamp carrying capacity to prevent log domain error
+    kappa = np.maximum(kappa, 1e-12)
     return gamma * y * (1 - (y / kappa))
 
 
@@ -161,8 +163,7 @@ class GrowthModelODE(GrowthModel):
         """
         sol = solve_ivp(self.base_ode, [t_array[0], t_array[-1]], [y0], method='LSODA', t_eval=t_array,
                         args=args)
-        y_array = sol.y[0]
-        return y_array
+        return sol.y[0]
 
 
 class GrowthModelIDE(GrowthModel):
