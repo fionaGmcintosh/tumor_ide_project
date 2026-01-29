@@ -29,6 +29,7 @@ def logistic(_t, y, gamma, kappa):
     """
     return gamma * y * (1 - (y / kappa))
 
+
 def classic_gompertz(_t, y, gamma, delta):
     """Function modeling the ODE of the Classic Gompertz growth model.
 
@@ -39,6 +40,7 @@ def classic_gompertz(_t, y, gamma, delta):
     :return: Value of the derivative of the model at the specified time
     """
     return y * (delta - gamma * np.log(y))
+
 
 def general_gompertz(_t, y, gamma, delta, lamda):
     """Function modeling the ODE of the Classic Gompertz growth model.
@@ -52,6 +54,7 @@ def general_gompertz(_t, y, gamma, delta, lamda):
     """
     return (y ** lamda) * (delta - (gamma * np.log(y)))
 
+
 def classic_bertalanffy(_t, y, alpha, beta):
     """Function modeling the ODE of the Classic Bertalanffy growth model.
 
@@ -62,6 +65,7 @@ def classic_bertalanffy(_t, y, alpha, beta):
     :return: Value of the derivative of the model at the specified time
     """
     return (alpha * (y ** 2 / 3)) - (beta * y)
+
 
 def general_bertalanffy(_t, y, alpha, beta, lamda):
     """Function modeling the ODE of the Classic Bertalanffy growth model.
@@ -84,7 +88,6 @@ class GrowthModel(ABC):
 
     :param base_ode: The base ODE of the model in function form
     """
-
     def __init__(self, base_ode):
         """Constructor method.
         """
@@ -141,7 +144,6 @@ class GrowthModelODE(GrowthModel):
     """Implemented subclass of :class:'GrowthModel' that represents the solution to an ordinary differential equation
      (ODE) growth model.
     """
-
     def solution(self, t_array, y0, *args):
         """Overrides :meth:'GrowthModel.solution' for a continuous model that can be numerically integrated over the 
         time interval in question using scipy.integrate.solve_ivp.
@@ -153,8 +155,10 @@ class GrowthModelODE(GrowthModel):
         :param args: Additional parameters of the base DE model, must match what is expected by base DE model
         :return: Array of model values at the specified times
         """
-        sol = solve_ivp(self.base_ode, [t_array[0], t_array[-1]], [y0], t_eval=t_array, args=args)
-        return np.asarray(sol.y)[0]
+        sol = solve_ivp(self.base_ode, [t_array[0], t_array[-1]], [y0], method='LSODA', t_eval=t_array,
+                        args=args)
+        y_array = sol.y[0]
+        return y_array
 
 
 class GrowthModelIDE(GrowthModel):
@@ -165,11 +169,10 @@ class GrowthModelIDE(GrowthModel):
     :param impulse_period: Constant interval between subsequent impulses
     :param base_ode: The base ODE of the model in function form
     """
-
     def __init__(self, impulse_period, base_ode):
         """Constructor method.
         """
-        self._treatment_period = impulse_period
+        self._impulse_period = impulse_period
         super().__init__(base_ode)
         self.num_params += 1
 
@@ -179,14 +182,15 @@ class GrowthModelIDE(GrowthModel):
         :param n_impulses: Number of impulses that have been applied thus far during numerical integration of the IDE
         :return: Event function to detect the next impulse
         """
-        def impulse_event(t, _y):
+        def impulse_event(t, _y, *_args):
             """Function given to scipy.integrate.solve_ivp to interrupt numerical integration when an impulse must occur
 
             :param t: Current time during numerical integration
             :param _y: Current model value during numerical integration (unused but needed for interfacing)
+            :param _args: Additional arguments passed by scipy.integrate.solve_ivp (unused but needed for interfacing)
             :return:
             """
-            return t - (n_impulses * self._treatment_period + 1)
+            return t - (n_impulses * self._impulse_period + 1)
 
         # Give event function attributes that denote integration should cease and zero-crossing can be any direction
         impulse_event.terminal = True
@@ -210,34 +214,33 @@ class GrowthModelIDE(GrowthModel):
         phi = args[0]
 
         # Initialize loop variables
-        flag = True
+        end_reached = False
         t0_n = t_array[0]
         y0_n = y0
-        t_array_n = t_array
+        t_array_n = t_array.tolist()
         y_array = []
         n = 0
 
-        while flag:
+        while not end_reached:
             # Perform numerical integration between impulses
             sol = solve_ivp(self.base_ode, [t0_n, t_array[-1]], [y0_n],
                             t_eval=t_array_n, events=self._impulse_event_factory(n), args=args[1:])
 
-            # Determine start time of next numerical integration interval
-            t0_n = np.asarray(sol.t)[-1]
-
-            y_array_n = np.asarray(sol.y).tolist()
-            if t0_n == t_array[-1]:
-                # If next start time coincides with end of solution interval, flag final loop iteration
-                flag = False
+            y_array_n = sol.y[0].tolist() if np.asarray(sol.y).size else []
+            if not np.asarray(sol.t_events).size or sol.t_events[0][0] == t_array[-1]:
+                # If no events occurred or event coincides with end of solution interval, flag final loop iteration
+                end_reached = True
             else:
-                # Else collect remaining times of interest and apply impulse to next model initial condition
-                t_array_n = [t for t in t_array.tolist() if t >= t0_n]
-                y0_n = y_array_n.pop()
-                y0_n *= phi
+                # Else set next start time, collect remaining times, remove redundant value, and apply impulse
+                t0_n = sol.t_events[0][0]
+                t_array_n = [t for t in t_array_n if t >= t0_n]
+                if np.asarray(sol.t).size and t0_n == sol.t[-1]:
+                    y_array_n.pop()
+                y0_n = sol.y_events[0][0][0] * phi
 
             # Accumulate model values for latest interval between impulses and increment number of impulses applied
             y_array += y_array_n
             n += 1
 
         # Return array of model values at specified times
-        return y_array
+        return np.array(y_array)
