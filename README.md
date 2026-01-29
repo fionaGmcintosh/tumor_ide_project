@@ -11,7 +11,7 @@ As we now have the real data we are using, keep these things in mind:
     - One is for advanced/metastatic NSCLC after failed platinum based chemo
     - One is for advanced/metastatic squamous NSCLC after failed platinum based chemo
 - Both of them: 
-    - Are on the 21 day cycles with treatment on day 1 of each cycle (i.e. 1,, 22, 43, etc.) as stated above
+    - Are on the 21-day cycles with treatment on day 1 of each cycle (i.e. 1, 22, 43, etc.) as stated above
     - Treat with 75mg Docetaxel (a Taxane chemotherapeutic agent) per square meter, IV
     - Treatment continues until the first one of these events occurs:
         - Disease Progression
@@ -64,11 +64,11 @@ Each model is implemented in both ODE (continuous) and IDE (with discrete treatm
 
 ## Quick Start
 
-> python two_experiments_comparison.py
+> python main.py
 
 This runs both experiments from the paper:
 - **Experiment 1**: Goodness of fit using all available data
-- **Experiment 2**: Early prediction using only first half of data points
+- **Experiment 2**: Early prediction using only some data points
 
 
 ## Model Details
