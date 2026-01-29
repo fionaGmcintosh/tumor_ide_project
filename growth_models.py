@@ -1,3 +1,4 @@
+import copy
 from math import sqrt
 import inspect
 from abc import ABC, abstractmethod
@@ -6,84 +7,135 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 
-def exponential(_t, y, alpha, beta):
-    """Function modeling the ODE of the exponential growth model.
+class BaseODE(ABC):
+    """Abstract base class that represents an ODE growth model functor and keeps track of parameter count and bounds.
 
-    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
-    :param y: Scalar value of the model at the specified time
-    :param alpha: Growth rate parameter
-    :param beta: Death rate parameter
-    :return: Value of the derivative of the model at the specified time
+    :param bounds: Tuple of two lists, lower and upper bounds respectively for functor parameters in signature order
     """
-    return (alpha - beta) * y
+    def __init__(self, bounds=None):
+        """Constructor method.
+        """
+        self.num_params = len(list(inspect.signature(self).parameters.values())[2:])
+        self.bounds = ([0] * self.num_params, [np.inf] * self.num_params) if not bounds else bounds
+
+    @abstractmethod
+    def __call__(self, *args):
+        """Abstract overridden parentheses operator, allows object to act as a callable functor.
+
+        :param args: Generic arguments to ODE overridden by subclasses
+        :return: Value of the derivative of the model at the specified time
+        """
+        pass
 
 
-def logistic(_t, y, gamma, kappa):
-    """Function modeling the ODE of the logistic growth model.
-
-    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
-    :param y: Scalar value of the model at the specified time
-    :param gamma: Net growth rate parameter
-    :param kappa: Carrying capacity parameter
-    :return: Value of the derivative of the model at the specified time
+class Exponential(BaseODE):
+    """Implemented subclass of :class:'BaseODE' representing the exponential growth model.
     """
-    # Clamp carrying capacity to prevent log domain error
-    kappa = np.maximum(kappa, 1e-12)
-    return gamma * y * (1 - (y / kappa))
+    def __call__(self, _t, y, alpha, beta):
+        """Function modeling the ODE of the exponential growth model.
+
+        :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+        :param y: Scalar value of the model at the specified time
+        :param alpha: Growth rate parameter
+        :param beta: Death rate parameter
+        :return: Value of the derivative of the model at the specified time
+        """
+        return (alpha - beta) * y
 
 
-def classic_gompertz(_t, y, gamma, delta):
-    """Function modeling the ODE of the Classic Gompertz growth model.
-
-    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
-    :param y: Scalar value of the model at the specified time
-    :param gamma: Net growth rate parameter
-    :param delta: Derived from net growth rate and carrying capacity
-    :return: Value of the derivative of the model at the specified time
+class Logistic(BaseODE):
+    """Implemented subclass of :class:'BaseODE' representing the logistic growth model.
     """
-    # Clamp model value to prevent log domain error
-    y = np.maximum(y, 1e-12)
-    return y * (delta - gamma * np.log(y))
+    def __call__(self, _t, y, gamma, kappa):
+        """Function modeling the ODE of the logistic growth model.
+
+        :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+        :param y: Scalar value of the model at the specified time
+        :param gamma: Net growth rate parameter
+        :param kappa: Carrying capacity parameter
+        :return: Value of the derivative of the model at the specified time
+        """
+        # Clamp carrying capacity to prevent log domain error
+        kappa = np.maximum(kappa, 1e-12)
+        return gamma * y * (1 - (y / kappa))
 
 
-def general_gompertz(_t, y, gamma, delta, lamda):
-    """Function modeling the ODE of the Classic Gompertz growth model.
-
-    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
-    :param y: Scalar value of the model at the specified time
-    :param gamma: Net growth rate parameter
-    :param delta: Derived from net growth rate and carrying capacity
-    :param lamda: Additional tuning parameter
-    :return: Value of the derivative of the model at the specified time
+class ClassicGompertz(BaseODE):
+    """Implemented subclass of :class:'BaseODE', classic Gompertz growth model with parameter bounds defined.
     """
-    # Clamp model value to prevent log domain error
-    y = np.maximum(y, 1e-12)
-    return (y ** lamda) * (delta - (gamma * np.log(y)))
+    def __init__(self):
+        bounds = ([0, -np.inf],[np.inf, np.inf])
+        super().__init__(bounds)
+
+    def __call__(self, _t, y, gamma, delta):
+        """Function modeling the ODE of the Classic Gompertz growth model.
+
+        :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+        :param y: Scalar value of the model at the specified time
+        :param gamma: Net growth rate parameter
+        :param delta: Derived from net growth rate and carrying capacity
+        :return: Value of the derivative of the model at the specified time
+        """
+        # Clamp model value to prevent log domain error
+        y = np.maximum(y, 1e-12)
+        return y * (delta - gamma * np.log(y))
 
 
-def classic_bertalanffy(_t, y, alpha, beta):
-    """Function modeling the ODE of the Classic Bertalanffy growth model.
-
-    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
-    :param y: Scalar value of the model at the specified time
-    :param alpha: Growth rate parameter
-    :param beta: Death rate parameter
-    :return: Value of the derivative of the model at the specified time
+class GeneralGompertz(BaseODE):
+    """Implemented subclass of :class:'BaseODE', general Gompertz growth model with parameter bounds defined.
     """
-    return (alpha * (y ** 2 / 3)) - (beta * y)
+    def __init__(self):
+        bounds = ([0, -np.inf, 2/3], [np.inf, np.inf, 1])
+        super().__init__(bounds)
+
+    def __call__(self, _t, y, gamma, delta, lamda):
+        """Function modeling the ODE of the Classic Gompertz growth model.
+
+        :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+        :param y: Scalar value of the model at the specified time
+        :param gamma: Net growth rate parameter
+        :param delta: Derived from net growth rate and carrying capacity
+        :param lamda: Additional tuning parameter
+        :return: Value of the derivative of the model at the specified time
+        """
+        # Clamp model value to prevent log domain error
+        y = np.maximum(y, 1e-12)
+        return (y ** lamda) * (delta - (gamma * np.log(y)))
 
 
-def general_bertalanffy(_t, y, alpha, beta, lamda):
-    """Function modeling the ODE of the Classic Bertalanffy growth model.
-
-    :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
-    :param y: Scalar value of the model at the specified time
-    :param alpha: Growth rate parameter
-    :param beta: Death rate parameter
-    :param lamda: Additional tuning parameter
-    :return: Value of the derivative of the model at the specified time
+class ClassicBertalanffy(BaseODE):
+    """Implemented subclass of :class:'BaseODE' representing the classic Bertalanffy growth model.
     """
-    return alpha * (y ** lamda) - beta * y
+    def __call__(self, _t, y, alpha, beta):
+        """Function modeling the ODE of the Classic Bertalanffy growth model.
+
+        :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+        :param y: Scalar value of the model at the specified time
+        :param alpha: Growth rate parameter
+        :param beta: Death rate parameter
+        :return: Value of the derivative of the model at the specified time
+        """
+        return (alpha * (y ** 2 / 3)) - (beta * y)
+
+
+class GeneralBertalanffy(BaseODE):
+    """Implemented subclass of :class:'BaseODE', general Bertalanffy growth model with parameter bounds defined.
+    """
+    def __init__(self):
+        bounds = ([0, 0, 2/3],[np.inf, np.inf, 1])
+        super().__init__(bounds)
+
+    def __call__(self, _t, y, alpha, beta, lamda):
+        """Function modeling the ODE of the Classic Bertalanffy growth model.
+
+        :param _t: Scalar time value at which differential equation is evaluated (unused but needed for interfacing)
+        :param y: Scalar value of the model at the specified time
+        :param alpha: Growth rate parameter
+        :param beta: Death rate parameter
+        :param lamda: Additional tuning parameter
+        :return: Value of the derivative of the model at the specified time
+        """
+        return alpha * (y ** lamda) - beta * y
 
 
 class GrowthModel(ABC):
@@ -98,7 +150,10 @@ class GrowthModel(ABC):
         """Constructor method.
         """
         self.base_ode = base_ode
-        self.num_params = len(list(inspect.signature(self.base_ode).parameters.values())[2:]) + 1
+        self.num_params = self.base_ode.num_params + 1
+        self.bounds = copy.deepcopy(self.base_ode.bounds)
+        self.bounds[0].insert(0, 0)
+        self.bounds[1].insert(0, np.inf)
 
     @abstractmethod
     def solution(self, t_array, y0, *args):
@@ -180,6 +235,8 @@ class GrowthModelIDE(GrowthModel):
         self._impulse_period = impulse_period
         super().__init__(base_ode)
         self.num_params += 1
+        self.bounds[0].insert(1, 0)
+        self.bounds[1].insert(1, 1)
 
     def _impulse_event_factory(self, n_impulses):
         """Closure method that creates event functions to detect the next impulse given the number of impulses applied.

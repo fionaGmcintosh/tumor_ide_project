@@ -6,8 +6,9 @@ import pandas as pd
 from scipy.optimize import differential_evolution, curve_fit
 import matplotlib.pyplot as plt
 
-from growth_models import GrowthModelODE, GrowthModelIDE, exponential, logistic, classic_gompertz, general_gompertz
-                           # classic_bertalanffy, general_bertalanffy
+from growth_models import (GrowthModelODE, GrowthModelIDE, Exponential, Logistic, ClassicGompertz, GeneralGompertz)
+                           # ClassicBertalanffy, GeneralBertalanffy)
+# TODO: Disabled Bertalanffy imports for now
 
 
 def get_model(base_ode, model_type):
@@ -34,14 +35,16 @@ def find_model_params(model, t_array, y_array):
     :return: Tuple of DE parameters that result in the best fit (minimum sum of squared errors)
     """
     # Create a bounds object for each parameter to be used for differential evolution
-    parameter_bounds = []
+    evolution_bounds = []
     for i in range(model.num_params):
-        parameter_bounds.append((0, 1))
+        lo, hi = model.bounds[0][i], model.bounds[1][i]
+        evolution_bounds.append((lo if lo != -np.inf else 0, hi if hi != np.inf else 1))
+        # evolution_bounds.append((0, 1))
 
     # Stochastically estimate initial parameter guesses with and iteratively improve parameter fit with scipy
-    params = differential_evolution(model.sse, tuple(parameter_bounds), args=(t_array, y_array),
+    params = differential_evolution(model.sse, tuple(evolution_bounds), args=(t_array, y_array),
                                     seed=42, strategy='best1bin').x
-    params, _ = curve_fit(model.solution, t_array, y_array, params, maxfev=1000, method='trf')
+    params, _ = curve_fit(model.solution, t_array, y_array, params, bounds=model.bounds, maxfev=1000, method='trf')
     return params
 
 
@@ -66,7 +69,7 @@ def plot_models(models, param_sets, names, t_array, y_array, save_dir=None, titl
     for model, params, name in zip(models, param_sets, names):
         rmse = model.rmse(params, t_array, y_array)
         y_array_pred = model.solution(t_array_pred, *params)
-        ax.plot(t_array_pred, y_array_pred, label='%s (RMSE: %s)' % (name, rmse))
+        ax.plot(t_array_pred, y_array_pred, label='%s (RMSE: %.3f)' % (name, rmse))
 
     # Format plot
     plt.tight_layout()
@@ -87,7 +90,7 @@ def plot_models(models, param_sets, names, t_array, y_array, save_dir=None, titl
 
     # Save or show plot as image
     if save_dir:
-        plt.savefig(os.path.join(save_dir, '%s.png' % title), bbox_inches='tight')
+        plt.savefig(os.path.join(save_dir, '%s.png' % title), dpi=300, bbox_inches='tight')
     else:
         plt.show()
 
@@ -130,6 +133,10 @@ def perform_data_analysis(data_path, model_properties, num_plots=5, save_dir=Non
             model = get_model(model_dict['base_ode'], model_dict['model_type'])
             param_sets = []
 
+            # TODO: Skip to n > 6 for testing
+            if len(patient_data_subset) < 6:
+                continue
+
             # TODO: Should we be pre-splitting datasets here? This seems more efficient but a little sloppier
             if len(patient_data_subset) >= 3:
                 # If this patient has more than 3 data points, fit parameters to all data and store MAE
@@ -147,8 +154,8 @@ def perform_data_analysis(data_path, model_properties, num_plots=5, save_dir=Non
 
                     if i < num_plots:
                         plot_models([model] * 2, param_sets, ['fit', 'prediction'], t_array, vol_array,
-                                    save_dir=save_dir,
-                                    titles=(str(patient_id), 'time (days)', 'volume (baseline norm)'))
+                            save_dir=save_dir,
+                            titles=('%s_%s' % (patient_id, model_name), 'time (days)', 'volume (baseline norm)'))
 
             print('Model %s complete' % model_name)
         print('Patient %s complete' % patient_id)
@@ -160,31 +167,32 @@ if __name__ == "__main__":
     DATA_PATH = r"resources/real_data.csv"
     MODEL_PROPERTIES = {
         'exponential':
-            {'base_ode': exponential, 'model_type': 'ode'},
+            {'base_ode': Exponential(), 'model_type': 'ode'},
         'exponential_impulsive':
-            {'base_ode': exponential, 'model_type': 'ide'},
+            {'base_ode': Exponential(), 'model_type': 'ide'},
         'logistic':
-            {'base_ode': logistic, 'model_type': 'ode'},
+            {'base_ode': Logistic(), 'model_type': 'ode'},
         'logistic_impulsive':
-            {'base_ode': logistic, 'model_type': 'ide'},
+            {'base_ode': Logistic(), 'model_type': 'ide'},
         'classic_gompertz':
-            {'base_ode': classic_gompertz, 'model_type': 'ode'},
+            {'base_ode': ClassicGompertz(), 'model_type': 'ode'},
         'classic_gompertz_impulsive':
-            {'base_ode': classic_gompertz, 'model_type': 'ide'},
+            {'base_ode': ClassicGompertz(), 'model_type': 'ide'},
         'general_gompertz':
-            {'base_ode': general_gompertz, 'model_type': 'ode'},
+            {'base_ode': GeneralGompertz(), 'model_type': 'ode'},
         'general_gompertz_impulsive':
-            {'base_ode': general_gompertz, 'model_type': 'ide'},
+            {'base_ode': GeneralGompertz(), 'model_type': 'ide'},
+        # TODO: Disabled Bertalanffy for now
         # 'classic_bertalanffy':
-        #     {'base_ode': classic_bertalanffy, 'model_type': 'ode'},
+        #     {'base_ode': ClassicBertalanffy(), 'model_type': 'ode'},
         # 'classic_bertalanffy_impulsive':
-        #     {'base_ode': classic_bertalanffy, 'model_type': 'ide'},
+        #     {'base_ode': ClassicBertalanffy(), 'model_type': 'ide'},
         # 'general_bertalanffy':
-        #     {'base_ode': general_bertalanffy, 'model_type': 'ode'},
+        #     {'base_ode': GeneralBertalanffy(), 'model_type': 'ode'},
         # 'general_bertalanffy_impulsive':
-        #     {'base_ode': general_bertalanffy, 'model_type': 'ide'}
+        #     {'base_ode': GeneralBertalanffy(), 'model_type': 'ide'}
     }
-    NUM_PLOT = 5
+    NUM_PLOT = 10
     SAVE_DIR = 'results'
 
     if os.path.exists(SAVE_DIR):
