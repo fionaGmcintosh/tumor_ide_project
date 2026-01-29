@@ -118,11 +118,12 @@ def perform_data_analysis(data_path, model_properties, num_plots=5, save_dir=Non
         # Initialize dictionary of results for this patient and extract their time and normalized tumor volume data
         results[patient_id] = {}
         patient_data_subset = patient_data[patient_data['patient_id'] == patient_id]
+        patient_data_subset = patient_data_subset.sort_values('treatment_day')
         t_array = patient_data_subset['treatment_day'].to_numpy()
         vol_array = 0.5 * (patient_data_subset['longest_diameter_mm'].to_numpy()) ** 3
         # TODO: Should we be normalizing per patient baseline? In study use full dataset max, here we use patient max
         # vol_array /= vol_array[0]
-        vol_array = np.array(vol_array) / vol_array.max()
+        vol_array /= vol_array.max()
 
         for model_name, model_dict in model_properties.items():
             # Iterate through and construct each type of model and check number of data points
