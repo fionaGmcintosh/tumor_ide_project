@@ -49,6 +49,8 @@ def find_model_params(model, t_array, y_array):
 
 
 # TODO: This function is for arbitrary models on one plot, do we want specific like ODE vs IDE or fit vs prediction?
+# Yes, we want to focus more on ODE vs IDE for each base ODE, don't care as much about best fit, dropout pred more interesting
+# We want to perform paired t test between ODE & IDE for each model for each patient (average error between ODE-IDE pairs)
 def plot_models(models, param_sets, names, t_array, y_array, save_dir=None, titles=None):
     """Takes a set of models and their parameters and plots their solutions against a scatter plot of actual data.
 
@@ -107,6 +109,7 @@ def perform_data_analysis(data_path, model_properties, num_plots=5, save_dir=Non
     # Load datasheet and break down into table for identifying patient treatment arm, table for patient data points
     data_frame = pd.read_csv(data_path)
     # TODO: 2NF database normalization, patient ID is key to data table and arm table, do we need to preserve arm?
+    # We probably don't need to preserve study arm, safe to just combine all data
     patient_info = data_frame[['patient_id', 'study_arm']].drop_duplicates().reset_index(drop=True)
     patient_data = data_frame[['patient_id', 'treatment_day', 'longest_diameter_mm']]
 

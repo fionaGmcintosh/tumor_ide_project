@@ -1,21 +1,37 @@
 # Project Objectives and Status
 
 ## To-Do:
+- Marco Fiona Discussion 2/1/26
+  - Marco
+    - Fix Bertalanffy/Gompertz overflow errors
+    - Drop experiment 1 (best-fit stuff)
+      - Don't need n < 6 data anymore (can filter it out or just delete from csv)
+    - Don't need treatment arm info
+    - Graph outputs probs fine as is
+    - Output graph ODE vs IDE per base model per patient
+    - Perform paired t test for ODE vs IDE error per base model per patient
+      - MAE/RMSE, potentially both, possibly one
+    - See how rejecting t < 1 data affects fitting
+      - Could help us determine if we need only data from one regime, or we can mix pre-treatment with treatment values
+    - MAE only for holdout points (?)
+  - Fiona
+    - Research RECIST / up, down, fluctuate as means to select representative patients
+    - Research RMSE vs MAE for results, especially given normalization / data scale per patient
+    - Research normalization (full dataset vs patient max vs patient baseline vs none)
+    - Research MAE/RMSE for holdout points or full curve
+
+
+## Status:
 
 ### Technical:
-- Refine / Recreate the code
-  - Intake data from CSV file (sample is in GitHub)
-  - Create 12 models
-    - 6 continuous, 6 impulsive as described in Plan doc
-  - Differential evolution to get initial guess parameters
-  - Non-linear least squares loss function using the “scipy” package in Python with the trf algorithm to pick the parameters afterward based on the datapoints given
-  - Perform the two experiments and analyses as detailed in the plan doc for all 12 models
-  - Graphical depiction of model fit 
-    - Possibly depict a sample of the model on one particular patient dataset, then a graphical depiction of the MSE, MAE, and RMSE (I think for now we should use all 3 and decide later if we want to focus it down)
-    - Recalling also that for Experiment 2, the errors should only be based on the predicted points, not those that were fed to generate parameter values 
-- Discuss use of AI as possible additional point of evaluation for picking parameter values
-  - Possible hybrid of utilizing previous data for similar conditions as well as using the given patient datapoints for patient-specific predictions with some kind of weighting? 
-  - Possible alternatives – need to discuss and flesh this out more
+- Wrote new and improved Laleh Code that ...
+  - Intakes data from CSV file (sample is in GitHub)
+  - Creates 12 models
+    - 6 continuous, 6 impulsive, one of each for every base ODE
+  - Guesses initial DE parameters using differential evolution to optimize SSE
+  - Uses scipy curve fitting with 'LSODA' (Laleh used 'trf') algorithm to fit parameters to data given guesses
+  - Performs the two experiments (curve fitting and holdout prediction) and records MAE/RMSE for all 12 models
+  - Outputs graphical depiction of model fit
   
 ### Logistical:
 - Wait for response from Dr. Kather (corresponding author from Laleh paper)
@@ -36,27 +52,3 @@
     - Use generated graphs
     - Table for all data
     - Continue updating as we receive the real data and implement the experiments
-
-    
-## Progress / Status Notes:
-
-### Technical:
-- Refine / Recreate the code
-  - Currently, there is purely AI generated code
-- Discuss use of AI as possible additional point of evaluation for picking parameter values
-
-### Logistical:
-- Wait for response from Dr. Kather (corresponding author from Laleh paper)
-  - Waiting
-- Wait for data from Dr. Becker
-  - Waiting
-
-### Writing:
-- Introduction
-  - WIP
-- Literature Review
-  - Doc file uploaded to GitHub with some initial sources, continuing to add
-- Methods
-  - WIP; updating as needed
-- Results, Discussion, Conclusion
-  - Cannot yet complete
