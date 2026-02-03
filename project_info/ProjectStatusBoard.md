@@ -35,9 +35,10 @@
         * I say we keep normalization across the entire dataset (could go through in advance and do one run of the data since we aren't changing what we're using each run, to save time)
         * Essentially, it is identical to not doing any normalization, but it gives you a scale of the error in comparison to the largest tumor
         * So for RMSE and MAE, it would tell you that the error number that you're looking at is x% of the largest tumor volume in the dataset
-            ^ You could definitely argue that you don't need to do this and just say what the biggest tumor is for a comparison, but this sort of makes it easier to look at
+            * You could definitely argue that you don't need to do this and just say what the biggest tumor is for a comparison, but this sort of makes it easier to look at
         * Regarding why we don't just normalize to each individual patient, this would lead to us disregarding errors that are actually more significant. For example, say patien A has tumor size of 50 and you approximated it as 100, versus patient B who had tumor size of 5 and you apprxoimated as 10. Normalizing by patient counts those errors as the same, when they should really be weighted differently, since an error in 50 is really more substantial than an error of 5, even with the relative scale of things. So I would say do not normalize patient by patient
         * If normalization across the whole thing is a giant pain, then functionally no normalization is really the same (as long as we give the max value or some range of values as a reference point for interpretation of the results) 
+        * I would also say that we should think about putting the V_max for each patient maybe as a note on the graphs (for the ones we end up showing) - so that they can know that for additional information possibly
     
     - Research MAE/RMSE for holdout points or full curve
         * Only calculate MAE/RMSE for the holdout points (not the full curve); I think this makes sense from a standpoint of having a meaningful result. It also seems to be what they did in the paper when they describe experiment two as "estimating the predictive accuracy for the *excluded* data points"
@@ -46,7 +47,7 @@
         * I think We should keep the negative time points. The paper says they use "all availble time points" for the experiments. Let's follow the same pathway.
         * We could *consider* doing another comparison where we do and do not use negative points
         * Could also *consider* doing something where we only do the differential evolution for the phi value (for the IDE) using positive time points, even if that means using less (i.e. if the first 3 time points are -14, 2, 8, then we woudl only use 2 and 8 for determining phi)
-            ^ this is probably useless so maybe don't bother, just noting it here as a thought in case we somehow run out of other stuff to do lol
+            * this is probably useless so maybe don't bother, just noting it here as a thought in case we somehow run out of other stuff to do lol
     
     - Why use SSE for differential evolution?
         * Sort of what we had guessed: it's fast and easy computationally, penalizes larger errors more to try to get the best fit you can, and also apparently it gives a cleaner input to the differential evolution process which could otherwise get screwy around zeros
